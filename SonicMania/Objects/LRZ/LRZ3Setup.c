@@ -25,8 +25,10 @@ void LRZ3Setup_StageLoad(void)
 
     // HPZ is 29, LRZ3 is 23
 
-    if (SceneInfo->listPos == 31) {
-
+    if (SceneInfo->listPos != 31) {
+        Zone_StartFadeIn(30, 0xF0F0F0);
+        Zone->cameraBoundsL[0] = 2560;
+        Zone->cameraBoundsR[0] = 3200;
     }
 #if MANIA_USE_PLUS
     if (SceneInfo->filter & FILTER_ENCORE) {

@@ -5,8 +5,13 @@
 
 typedef enum {
     HPZEMERALD_MASTER,
-    HPZEMERALD_EMERALD_LOW,
-    HPZEMERALD_EMERALD_HIGH,
+    HPZEMERALD_EMERALD_RED,
+    HPZEMERALD_EMERALD_BLUE,
+    HPZEMERALD_EMERALD_ORANGE,
+    HPZEMERALD_EMERALD_GREEN,
+    HPZEMERALD_EMERALD_PURPLE,
+    HPZEMERALD_EMERALD_GREY,
+    HPZEMERALD_EMERALD_CYAN,
 } HPZEmeraldTypes;
 
 typedef enum { HPZ_TFLAGS_NORMAL} TileFlagsLRZ2;
@@ -16,6 +21,7 @@ struct ObjectHPZEmerald {
     uint16 aniFrames;
     int32 counter;
     Hitbox hitboxHPZEmerald;
+    uint16 sfxSpecialWarp;
 };
 
 // Entity Class

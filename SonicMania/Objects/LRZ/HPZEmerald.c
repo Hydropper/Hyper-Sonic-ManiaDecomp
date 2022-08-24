@@ -23,23 +23,21 @@ void HPZEmerald_Update(void)
     
     foreach_active(Player, player) {
     if (player->onGround == 1) {
-            if ((Player_CheckCollisionTouch(player, self, &HPZEmerald->hitboxHPZEmerald)) == C_TOP) {
-                if (counter == 0) {
-                    counter = 1;
-                    RSDK.SetScene("Special Stage", "");
-                    SceneInfo->listPos += 14;
-                    SceneInfo->listPos -= self->type;
-                    Zone_StartFadeOut(10, 0xF0F0F0);
-                    Music_Stop();
-                }
+        if ((Player_CheckCollisionTouch(player, self, &HPZEmerald->hitboxHPZEmerald)) == C_TOP) {
+            if (counter == 0) {
+                counter = 1;
+                foreach_active(Player, player)
+                RSDK.SetScene("Special Stage", "");
+                SceneInfo->listPos += 14;
+                SceneInfo->listPos -= self->type;
+                RSDK.PlaySfx(HPZEmerald->sfxSpecialWarp, false, 255);
+                Zone_StartFadeOut(10, 0xF0F0F0);
+                Music_FadeOut(0.05);
             }
+        }
     }
     }
     }
-
-
-
-
 
     RSDK.ProcessAnimation(&self->emeraldAnimator);
 
@@ -82,6 +80,13 @@ void HPZEmerald_Draw(void)
 
     self->inkEffect = INK_NONE;
 
+    if (self->type != HPZEMERALD_MASTER) {
+        RSDK.SetActivePalette(6, 0, ScreenInfo->size.y);
+    }
+    else {
+        RSDK.SetActivePalette(0, 0, ScreenInfo->size.y);
+    }
+
     if (self->solid) {
         RSDK.DrawSprite(&self->emeraldAnimator, NULL, false);
     }
@@ -91,6 +96,7 @@ void HPZEmerald_Draw(void)
         self->inkEffect = INK_ADD;
         RSDK.DrawSprite(&self->overlayAnimator, NULL, false);
     }
+    RSDK.SetActivePalette(0, 0, ScreenInfo->size.y);
 }
 
 
@@ -151,12 +157,17 @@ void HPZEmerald_Create(void *data)
             default:
             case HPZEMERALD_MASTER: self->drawGroup = 1; break;
 
-            case HPZEMERALD_EMERALD_LOW:
+            case HPZEMERALD_EMERALD_RED:
+            case HPZEMERALD_EMERALD_BLUE:
+            case HPZEMERALD_EMERALD_GREEN:
+            case HPZEMERALD_EMERALD_GREY:
+            case HPZEMERALD_EMERALD_CYAN:
                 self->solid     = true;
                 self->drawGroup = Zone->objectDrawGroup[0];
                 break;
 
-            case HPZEMERALD_EMERALD_HIGH:
+            case HPZEMERALD_EMERALD_ORANGE:
+            case HPZEMERALD_EMERALD_PURPLE:
                 self->solid     = true;
                 self->drawGroup = Zone->objectDrawGroup[1];
                 break;
@@ -183,7 +194,8 @@ void HPZEmerald_Create(void *data)
 }
 
 void HPZEmerald_StageLoad(void) { 
-    HPZEmerald->aniFrames = RSDK.LoadSpriteAnimation("LRZ3/Emerald.bin", SCOPE_STAGE); 
+    HPZEmerald->aniFrames = RSDK.LoadSpriteAnimation("LRZ3/Emerald.bin", SCOPE_STAGE);
+    HPZEmerald->sfxSpecialWarp = RSDK.GetSfx("Global/SpecialWarp.wav");
     counter = 0;
 }
 
@@ -196,9 +208,15 @@ void HPZEmerald_EditorDraw(void)
     switch (self->type) {
         default:
         case HPZEMERALD_MASTER:
-        case HPZEMERALD_EMERALD_LOW: self->solid = true; break;
-
-        case HPZEMERALD_EMERALD_HIGH: self->solid = true; break;
+        case HPZEMERALD_EMERALD_RED: 
+        case HPZEMERALD_EMERALD_BLUE:
+        case HPZEMERALD_EMERALD_ORANGE:
+        case HPZEMERALD_EMERALD_GREEN:
+        case HPZEMERALD_EMERALD_PURPLE:
+        case HPZEMERALD_EMERALD_GREY:
+        case HPZEMERALD_EMERALD_CYAN:
+            self->solid = true; 
+        break;
     }
 
     if (self->type) {
