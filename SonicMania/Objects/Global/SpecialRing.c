@@ -304,17 +304,12 @@ void SpecialRing_State_Warp(void)
 
         SaveRAM *saveRAM       = SaveGame->saveRAM;
         saveRAM->storedStageID = SceneInfo->listPos;
-        RSDK.SetScene("Special Stage", "");
-        SceneInfo->listPos += saveRAM->nextSpecialStage;
-
-        if (SpecialRing->chaosEmeralds >= 255) {
-            SceneInfo->listPos += 7;
-        }
 
 #if MANIA_USE_PLUS
         if (globals->gameMode == MODE_ENCORE)
             SceneInfo->listPos += 7;
 #endif
+        RSDK.SetScene("Cutscenes", "Hidden Palace Zone");
         Zone_StartFadeOut(10, 0xF0F0F0);
         Music_Stop();
     }

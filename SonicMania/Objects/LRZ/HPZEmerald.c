@@ -8,32 +8,38 @@
 #include "Game.h"
 
 ObjectHPZEmerald *HPZEmerald;
+int32 counter = 0;
 
 void HPZEmerald_Update(void)
 {
-    // Tile Behaviours
-    foreach_active(Player, player)
-    {
-        if (player->onGround) {
-            Hitbox *playerHitbox = Player_GetHitbox(player);
-            uint8 behaviour      = 0;
-            int32 tileInfo       = 0;
 
-            LRZ2Setup_GetTileInfo(player->position.x, player->position.y + (playerHitbox->bottom << 16), player->moveLayerPosition.x,
-                                  player->moveLayerPosition.y, player->collisionPlane, &tileInfo, &behaviour);
-
-            bool32 conveyorCollided = false;
-            uint8 conveyorDir       = 0;
-            if (behaviour == 1) {
-                
-        
-        Zone_StartFadeOut(10, 0xF0F0F0);
-        Music_Stop();
-            }
-
-        }
-    }
     RSDK_THIS(HPZEmerald);
+    HPZEmerald->hitboxHPZEmerald.left = -16;
+    HPZEmerald->hitboxHPZEmerald.top = -29;
+    HPZEmerald->hitboxHPZEmerald.right = 16;
+    HPZEmerald->hitboxHPZEmerald.bottom = -16;
+
+    if (self->type >= 1) {
+    
+    foreach_active(Player, player) {
+    if (player->onGround == 1) {
+            if ((Player_CheckCollisionTouch(player, self, &HPZEmerald->hitboxHPZEmerald)) == C_TOP) {
+                if (counter == 0) {
+                    counter = 1;
+                    RSDK.SetScene("Special Stage", "");
+                    SceneInfo->listPos += 14;
+                    SceneInfo->listPos -= self->type;
+                    Zone_StartFadeOut(10, 0xF0F0F0);
+                    Music_Stop();
+                }
+            }
+    }
+    }
+    }
+
+
+
+
 
     RSDK.ProcessAnimation(&self->emeraldAnimator);
 
@@ -87,6 +93,53 @@ void HPZEmerald_Draw(void)
     }
 }
 
+
+void HPZSetup_GetTileInfo(int32 x, int32 y, int32 moveOffsetX, int32 moveOffsetY, int32 cPlane, int32 *tile, uint8 *flags)
+{
+    int32 tileLow  = RSDK.GetTile(Zone->fgLayer[0], x >> 20, y >> 20);
+    int32 tileHigh = RSDK.GetTile(Zone->fgLayer[1], x >> 20, y >> 20);
+
+    int32 flagsLow  = RSDK.GetTileFlags(tileLow, cPlane);
+    int32 flagsHigh = RSDK.GetTileFlags(tileHigh, cPlane);
+
+    int32 tileMove  = 0;
+    int32 flagsMove = 0;
+    if (Zone->moveLayer) {
+        tileMove  = RSDK.GetTile(Zone->moveLayer, (moveOffsetX + x) >> 20, (moveOffsetY + y) >> 20);
+        flagsMove = RSDK.GetTileFlags(tileMove, cPlane);
+    }
+
+    int32 tileSolidLow  = 0;
+    int32 tileSolidHigh = 0;
+    int32 tileSolidMove = 0;
+    if (cPlane) {
+        tileSolidHigh = (tileHigh >> 14) & 3;
+        tileSolidLow  = (tileLow >> 14) & 3;
+    }
+    else {
+        tileSolidHigh = (tileHigh >> 12) & 3;
+        tileSolidLow  = (tileLow >> 12) & 3;
+    }
+
+    if (Zone->moveLayer)
+        tileSolidMove = (tileMove >> 12) & 3;
+
+    *tile  = 0;
+    *flags = HPZ_TFLAGS_NORMAL;
+    if (flagsMove && tileSolidMove) {
+        *tile  = tileMove;
+        *flags = flagsMove;
+    }
+    else if (flagsHigh && tileSolidHigh) {
+        *tile  = tileHigh;
+        *flags = flagsHigh;
+    }
+    else if (flagsLow && tileSolidLow) {
+        *tile  = tileLow;
+        *flags = flagsLow;
+    }
+}
+
 void HPZEmerald_Create(void *data)
 {
     RSDK_THIS(HPZEmerald);
@@ -129,7 +182,10 @@ void HPZEmerald_Create(void *data)
     }
 }
 
-void HPZEmerald_StageLoad(void) { HPZEmerald->aniFrames = RSDK.LoadSpriteAnimation("LRZ3/Emerald.bin", SCOPE_STAGE); }
+void HPZEmerald_StageLoad(void) { 
+    HPZEmerald->aniFrames = RSDK.LoadSpriteAnimation("LRZ3/Emerald.bin", SCOPE_STAGE); 
+    counter = 0;
+}
 
 #if RETRO_INCLUDE_EDITOR
 void HPZEmerald_EditorDraw(void)

@@ -9,10 +9,13 @@ typedef enum {
     HPZEMERALD_EMERALD_HIGH,
 } HPZEmeraldTypes;
 
+typedef enum { HPZ_TFLAGS_NORMAL} TileFlagsLRZ2;
 // Object Class
 struct ObjectHPZEmerald {
     RSDK_OBJECT
     uint16 aniFrames;
+    int32 counter;
+    Hitbox hitboxHPZEmerald;
 };
 
 // Entity Class
@@ -20,6 +23,7 @@ struct EntityHPZEmerald {
     RSDK_ENTITY
     StateMachine(state); // unused
     int32 type;
+    int32 counter;
     bool32 solid;
     Vector2 startPos;
     Hitbox *hitbox;
@@ -31,6 +35,7 @@ struct EntityHPZEmerald {
 extern ObjectHPZEmerald *HPZEmerald;
 
 // Standard Entity Events
+void HPZSetup_GetTileInfo(int32 x, int32 y, int32 moveOffsetX, int32 moveOffsetY, int32 cPlane, int32 *tile, uint8 *flags);
 void HPZEmerald_Update(void);
 void HPZEmerald_LateUpdate(void);
 void HPZEmerald_StaticUpdate(void);
